@@ -27,8 +27,7 @@ samples = [
         ]
 
 # Number of bases to simulate
-#num_bases = 46e6
-num_bases = 10
+num_bases = 46e6
 
 # Run simulation and extract results
 tree_seq = msprime.simulate(recombination_rate=2e-8, mutation_rate=2e-8,
