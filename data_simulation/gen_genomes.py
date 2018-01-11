@@ -8,7 +8,7 @@ import os
 ########################
 
 # Number of bases to simulate
-num_bases = 1000
+num_bases = 100000
 
 # Numer of present day individuals (excluding contaminant)
 present_individuals = 11
