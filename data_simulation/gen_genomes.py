@@ -2,6 +2,7 @@ import msprime
 import subprocess
 import shutil
 import os
+import math
 
 ########################
 # Important parameters #
@@ -84,6 +85,7 @@ for variant in tree_seq.variants():
 ############################################
 # Transform data for seq-gen compatibility #
 ############################################
+
 tree_filepath = 'tree_data'
 tree_seq.dump(tree_filepath)
 
@@ -98,15 +100,16 @@ newick_file.close()
 # to merge the multiple trees that result from recombination
 intervals = []
 for tree in tree_seq.trees():
-    intervals.append(int(round(tree.get_length())))
+    length = tree.get_length()
+    intervals.append(int(length))
 
 print('\nInterval total sum: ' + str(sum(intervals)) + '\n')
 
-# TODO: Fix this thing
-# Exit gracefully if intervals are wrong
-if sum(intervals) != num_bases:
-    print('Messed up intervals')
-    quit()
+# Fix rounding error
+diff = num_bases - sum(intervals)
+
+if diff != 0:
+    intervals[len(intervals) - 1] += diff
 
 # Get number of partitions and add intervals
 partitions = 0
@@ -127,7 +130,7 @@ with open(newick_filepath, 'w') as newick_file:
 
 # 0.00045 taken from Gargammel example. msprime does not
 # use coalescence units so we divide by 40k to convert
-branch_scale = 0.00045 / 40000
+branch_scale = 0.032 / (4 * num_bases)
 seqgen_filepath = 'sequence_data'
 
 with open(seqgen_filepath, 'w') as seqgen_file:
@@ -161,6 +164,22 @@ if os.path.exists(newick_filepath):
     os.remove(newick_filepath)
 if os.path.exists(tree_filepath):
     os.remove(tree_filepath)
+
+sites = 0
+with open(seqgen_filepath, 'r') as seqgen_file:
+    chr_lines = seqgen_file.readlines()
+
+    for i in range(num_bases):
+
+        start = chr_lines[0][i]
+
+        for line in chr_lines:
+            if line[i] != start:
+                sites += 1
+                break
+
+print('Segregating sites: ' + str(sites))
+
 
 ##############################################
 # Split seq-gen output into individual files #
