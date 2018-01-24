@@ -77,10 +77,7 @@ samples = [
 tree_seq = msprime.simulate(recombination_rate=2e-8,
         mutation_rate=2e-8, Ne=1e4, length=num_bases, samples=samples)
 
-print("Total mutations = ", tree_seq.get_num_mutations())
-
-for variant in tree_seq.variants():
-    print(variant.index, variant.position, variant.genotypes, sep="\t")
+total_mutations = tree_seq.get_num_mutations()
 
 ############################################
 # Transform data for seq-gen compatibility #
@@ -102,8 +99,6 @@ intervals = []
 for tree in tree_seq.trees():
     length = tree.get_length()
     intervals.append(int(length))
-
-print('\nInterval total sum: ' + str(sum(intervals)) + '\n')
 
 # Fix rounding error
 diff = num_bases - sum(intervals)
@@ -130,7 +125,7 @@ with open(newick_filepath, 'w') as newick_file:
 
 # 0.00045 taken from Gargammel example. msprime does not
 # use coalescence units so we divide by 40k to convert
-branch_scale = 0.032 / (4 * num_bases)
+branch_scale = 0.000000083
 seqgen_filepath = 'sequence_data'
 
 with open(seqgen_filepath, 'w') as seqgen_file:
@@ -302,3 +297,12 @@ with open(seqgen_filepath, 'r') as seqgen_file:
 ###########
 if os.path.exists(seqgen_filepath):
     os.remove(seqgen_filepath)
+
+#####################
+# Output statistics #
+#####################
+
+print("\n**************************")
+print("gen_genomes.py statistics:")
+print("**************************\n")
+print("Total mutations = ", total_mutations)
