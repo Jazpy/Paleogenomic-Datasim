@@ -16,14 +16,17 @@ present_individuals = 11
 # Number of ancient individuals
 ancient_individuals = 5
 
-# Our samples, 12 modern genomes and
-# 5 ancient genomes sampled 25, 50, 100, 200, and
+# Our samples, 12 modern genomes, 1 reference chromosome,
+# and 5 ancient genomes sampled 25, 50, 100, 200, and
 # 400 generations ago.
 samples = [
         # Present samples
 
         # Contamination individual - 2 chromosomes
         msprime.Sample(0, 0), # index 0
+        msprime.Sample(0, 0),
+
+        # Reference chromosome for Gargammel
         msprime.Sample(0, 0),
 
         # Mapping reference individual - 2 chromosomes
@@ -183,6 +186,7 @@ print('Segregating sites: ' + str(sites))
 con_dir = './contaminant/'
 pre_dir = './present/'
 anc_dir = './ancient/'
+ref_dir = './reference/'
 
 # Create clean directories
 if os.path.exists(con_dir):
@@ -194,9 +198,13 @@ if os.path.exists(pre_dir):
 if os.path.exists(anc_dir):
     shutil.rmtree(anc_dir)
 
+if os.path.exists(ref_dir):
+    shutil.rmtree(ref_dir)
+
 os.makedirs(con_dir)
 os.makedirs(pre_dir)
 os.makedirs(anc_dir)
+os.makedirs(ref_dir)
 
 # Split individuals
 with open(seqgen_filepath, 'r') as seqgen_file:
@@ -228,6 +236,18 @@ with open(seqgen_filepath, 'r') as seqgen_file:
 
         chr_index += 1
 
+    ########################################
+    # Split Gargammel reference chromosome #
+    ########################################
+
+    filename = 'ref.fa'
+    with open(ref_dir + filename, 'w') as f:
+        # Write header
+        f.write('>ref_1' + '\n')
+        # Write only the sequence, no chromosome index
+        f.write(chr_sequences[chr_index])
+
+        chr_index += 1
 
     #################################
     # Split present day individuals #

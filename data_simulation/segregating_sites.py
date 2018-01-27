@@ -34,14 +34,14 @@ individuals = int(len(files) / 2)
 for i in range(individuals):
 
     # Individual string
-    ind_string = 'ancient_' + str(i)
+    ind_string = 'ancient.' + str(i + 1)
 
     # Build both filepaths
-    chr_path_1 = anc_dir + ind_string + '_1.fa'
-    chr_path_2 = anc_dir + ind_string + '_2.fa'
+    chr_path_1 = anc_dir + ind_string + '.1.fa'
+    chr_path_2 = anc_dir + ind_string + '.2.fa'
 
     # Segregating sites filepath
-    seg_path = anc_dir + 'segsites_' + str(i)
+    seg_path = anc_dir + 'segsites.' + str(i + 1)
 
     # Lines that will be written to segsites file
     out = []

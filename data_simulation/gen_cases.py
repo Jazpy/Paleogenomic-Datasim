@@ -7,7 +7,7 @@ import os
 ########################
 
 # Number of cases, one for each ancient individual
-num_cases = int(len(os.listdir('./ancient/')) / 2)
+num_cases = int(len(os.listdir('./ancient/')) / 3)
 
 #######################
 # Directory structure #
@@ -37,7 +37,7 @@ for i in range(num_cases):
 # Data movement #
 #################
 
-# Make copies of contaminant for each case
+# Make copies of contaminant and reference for each case
 for i in range(num_cases):
     case_index = i + 1
     dir_string = main_dir + 'case_' + str(case_index) + '/'
@@ -46,14 +46,36 @@ for i in range(num_cases):
     shutil.copyfile(con_dir + 'cont.1.fa', dir_string + 'cont/cont.1.fa')
     shutil.copyfile(con_dir + 'cont.2.fa', dir_string + 'cont/cont.2.fa')
 
-# Move each ancient human to its own case directory
+    ref_dir = './reference/'
+    shutil.copyfile(ref_dir + 'ref.fa', dir_string + 'ref.fa')
+
+# Move each ancient human (and segsites) to its own case directory
 for ancient in os.listdir('./ancient/'):
     filepath = './ancient/' + ancient
+    case_index = ancient.split('.')[1]
+
+    # Special case for segsites
+    if 'segsites' in ancient:
+        # Simply move it to its case folder
+        dir_string = main_dir + 'case_' + case_index + '/'
+        shutil.move(filepath, dir_string + 'endo/segsites')
+        continue
 
     # Get case number (individual's index) and chr index
-    case_index = filepath.split('.')[2]
-    chr_index = filepath.split('.')[3]
+    chr_index = ancient.split('.')[2]
 
     # Move file to case folder
     dir_string = main_dir + 'case_' + case_index + '/'
-    shutil.move(filepath, dir_string + 'endo.' + str(chr_index) + '.fa')
+    shutil.move(filepath, dir_string + 'endo/endo.' + str(chr_index) + '.fa')
+
+###########
+# Cleanup #
+###########
+if os.path.exists('./ancient'):
+    shutil.rmtree('./ancient')
+
+if os.path.exists('./reference'):
+    shutil.rmtree('./reference')
+
+if os.path.exists('./contaminant'):
+    shutil.rmtree('./contaminant')
