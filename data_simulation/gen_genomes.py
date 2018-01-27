@@ -175,7 +175,6 @@ with open(seqgen_filepath, 'r') as seqgen_file:
 
 print('Segregating sites: ' + str(sites))
 
-
 ##############################################
 # Split seq-gen output into individual files #
 ##############################################
@@ -209,7 +208,7 @@ with open(seqgen_filepath, 'r') as seqgen_file:
     #####################
 
     # First contaminant chromosome
-    filename = 'cont_1_.fa'
+    filename = 'cont.1.fa'
     with open(con_dir + filename, 'w') as f:
         # Write header
         f.write('>cont_1' + '\n')
@@ -220,10 +219,10 @@ with open(seqgen_filepath, 'r') as seqgen_file:
         chr_index += 1
 
     # Second contaminant chromosome
-    filename = 'cont_2_.fa'
+    filename = 'cont.2.fa'
     with open(con_dir + filename, 'w') as f:
         # Write header
-        f.write('>cont_2' + '\n')
+        f.write('>cont_1' + '\n')
         # Write only the sequence, no chromosome index
         f.write(chr_sequences[chr_index])
 
@@ -237,25 +236,25 @@ with open(seqgen_filepath, 'r') as seqgen_file:
     for i in range(present_individuals):
 
         # Individual string
-        ind_string = 'individual_' + str(i)
+        ind_string = 'individual.' + str(i + 1)
         
         # First chromosome
-        filename = ind_string + '_1.fa'
+        filename = ind_string + '.1.fa'
 
         with open(pre_dir + filename, 'w') as f:
             # Write header
-            f.write('>' + ind_string + '_1' + '\n')
+            f.write('>individual_' + str(i + 1) + '\n')
             # Write sequence
             f.write(chr_sequences[chr_index])
 
             chr_index += 1
 
         # First chromosome
-        filename = ind_string + '_2.fa'
+        filename = ind_string + '.2.fa'
 
         with open(pre_dir + filename, 'w') as f:
             # Write header
-            f.write('>' + ind_string + '_2' + '\n')
+            f.write('>individual_' + str(i + 1) + '\n')
             # Write sequence
             f.write(chr_sequences[chr_index])
 
@@ -268,25 +267,25 @@ with open(seqgen_filepath, 'r') as seqgen_file:
     for i in range(ancient_individuals):
 
         # Individual string
-        ind_string = 'ancient_' + str(i)
+        ind_string = 'ancient.' + str(i + 1)
         
         # First chromosome
-        filename = ind_string + '_1.fa'
+        filename = ind_string + '.1.fa'
 
         with open(anc_dir + filename, 'w') as f:
             # Write header
-            f.write('>' + ind_string + '_1' + '\n')
+            f.write('>ancient_' + str(i + 1) + '\n')
             # Write sequence
             f.write(chr_sequences[chr_index])
 
             chr_index += 1
 
         # First chromosome
-        filename = ind_string + '_2.fa'
+        filename = ind_string + '.2.fa'
 
         with open(anc_dir + filename, 'w') as f:
             # Write header
-            f.write('>' + ind_string + '_2' + '\n')
+            f.write('>ancient_' + str(i + 1) + '\n')
             # Write sequence
             f.write(chr_sequences[chr_index])
 
