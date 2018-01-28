@@ -29,9 +29,11 @@ for i in range(num_cases):
     # Directories for contaminant and endogenous data
     endo_dir = dir_string + 'endo/'
     cont_dir = dir_string + 'cont/'
+    bact_dir = dir_string + 'bact/'
 
     os.makedirs(endo_dir)
     os.makedirs(cont_dir)
+    os.makedirs(bact_dir)
 
 #################
 # Data movement #
