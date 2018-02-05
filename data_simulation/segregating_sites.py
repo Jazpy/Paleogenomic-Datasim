@@ -5,6 +5,7 @@
 #####################################################
 
 import os
+from multiprocessing import Pool
 
 anc_dir = './ancient/'
 
@@ -27,21 +28,20 @@ if len(files) % 2 != 0:
 # Calculate total individuals
 individuals = int(len(files) / 2)
 
-#####################################################
-# Iterate over chromosome files for all individuals #
-#####################################################
+######################################
+# Aux function, will be parallelized #
+######################################
 
-for i in range(individuals):
-
+def write_sites(individual_index):
     # Individual string
-    ind_string = 'ancient.' + str(i + 1)
+    ind_string = 'ancient.' + str(individual_index + 1)
 
     # Build both filepaths
     chr_path_1 = anc_dir + ind_string + '.1.fa'
     chr_path_2 = anc_dir + ind_string + '.2.fa'
 
     # Segregating sites filepath
-    seg_path = anc_dir + 'segsites.' + str(i + 1)
+    seg_path = anc_dir + 'segsites.' + str(individual_index + 1)
 
     # Lines that will be written to segsites file
     out = []
@@ -65,3 +65,11 @@ for i in range(individuals):
     # Write to file
     with open(seg_path, 'w') as f:
         f.writelines(out)
+
+#####################################################
+# Iterate over chromosome files for all individuals #
+#####################################################
+
+# Parallelize over the number of individuals
+pool = Pool()
+pool.map(write_sites, range(individuals))
