@@ -1,5 +1,5 @@
 # Paleogenomic-Datasim
-Simulation and analysis of paleogenomic data
+Simulation and analysis of paleogenomic data.
 
 All of these scripts are written for use with Qsub.
 
