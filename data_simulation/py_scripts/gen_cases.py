@@ -6,60 +6,87 @@ import os
 # Important parameters #
 ########################
 
+# Global dir
+g_dir = '/mnt/Cromosoma/mavila/jmedina/Paleogenomic-Datasim/data_simulation'
+
 # Number of cases, one for each ancient individual
-num_cases = int(len(os.listdir('./ancient/')) / 3)
+num_cases = int(len(os.listdir(g_dir + '/ancient/')) / 3)
+
+# Coverage parameters
+coverages = [1, 5, 10]
+
+# Contamination parameters
+contaminations = [0, 2, 5, 10]
 
 #######################
 # Directory structure #
 #######################
 
 # Directory constants
-main_dir = './cases/'
+garg_dir = g_dir + '/gargammel/cases/'
+main_dir = g_dir + '/cases/'
 
 # Create clean directories, one for each case
 if os.path.exists(main_dir):
     shutil.rmtree(main_dir)
+if os.path.exists(garg_dir):
+    shutil.rmtree(garg_dir)
+    shutil.rmtree(g_dir + '/gargammel/')
 
 os.makedirs(main_dir)
+os.makedirs(g_dir + '/gargammel/')
+os.makedirs(garg_dir)
 
 for i in range(num_cases):
     dir_string = main_dir + 'case_' + str(i + 1) + '/'
+    garg_dir_string = garg_dir + 'case_' + str(i + 1) + '/'
+
     os.makedirs(dir_string)
+    os.makedirs(garg_dir_string)
 
     # Directories for contaminant and endogenous data
-    endo_dir = dir_string + 'endo/'
-    cont_dir = dir_string + 'cont/'
-    bact_dir = dir_string + 'bact/'
+    endo_dir = garg_dir_string + 'endo/'
+    cont_dir = garg_dir_string + 'cont/'
+    bact_dir = garg_dir_string + 'bact/'
 
     os.makedirs(endo_dir)
     os.makedirs(cont_dir)
     os.makedirs(bact_dir)
 
+    # Directories for different coverage parameters
+    for c in coverages:
+        cov_dir = dir_string + str(c) + 'x/'
+        os.makedirs(cov_dir)
+
+        # Directories for different contamination parameters
+        for x in contaminations:
+            os.makedirs(cov_dir + str(x) + 'percent/')
+
 #################
 # Data movement #
 #################
+con_dir = g_dir + '/contaminant/'
+ref_dir = g_dir + '/reference/'
 
 # Make copies of contaminant and reference for each case
 for i in range(num_cases):
     case_index = i + 1
-    dir_string = main_dir + 'case_' + str(case_index) + '/'
+    dir_string = garg_dir + 'case_' + str(case_index) + '/'
 
-    con_dir = './contaminant/'
     shutil.copyfile(con_dir + 'cont.1.fa', dir_string + 'cont/cont.1.fa')
     shutil.copyfile(con_dir + 'cont.2.fa', dir_string + 'cont/cont.2.fa')
 
-    ref_dir = './reference/'
     shutil.copyfile(ref_dir + 'ref.fa', dir_string + 'ref.fa')
 
 # Move each ancient human (and segsites) to its own case directory
-for ancient in os.listdir('./ancient/'):
-    filepath = './ancient/' + ancient
+for ancient in os.listdir(g_dir + '/ancient/'):
+    filepath = g_dir + '/ancient/' + ancient
     case_index = ancient.split('.')[1]
 
     # Special case for segsites
     if 'segsites' in ancient:
         # Simply move it to its case folder
-        dir_string = main_dir + 'case_' + case_index + '/'
+        dir_string = garg_dir + 'case_' + case_index + '/'
         shutil.move(filepath, dir_string + 'endo/segsites')
         continue
 
@@ -67,17 +94,14 @@ for ancient in os.listdir('./ancient/'):
     chr_index = ancient.split('.')[2]
 
     # Move file to case folder
-    dir_string = main_dir + 'case_' + case_index + '/'
+    dir_string = garg_dir + 'case_' + case_index + '/'
     shutil.move(filepath, dir_string + 'endo/endo.' + str(chr_index) + '.fa')
 
 ###########
 # Cleanup #
 ###########
-if os.path.exists('./ancient'):
-    shutil.rmtree('./ancient')
+if os.path.exists(g_dir + '/ancient'):
+    shutil.rmtree(g_dir + '/ancient')
 
-if os.path.exists('./reference'):
-    shutil.rmtree('./reference')
-
-if os.path.exists('./contaminant'):
-    shutil.rmtree('./contaminant')
+if os.path.exists(g_dir + '/contaminant'):
+    shutil.rmtree(g_dir + '/contaminant')

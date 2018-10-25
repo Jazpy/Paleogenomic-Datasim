@@ -4,10 +4,13 @@
 # directory, gen_genomes.py should be run first     #
 #####################################################
 
+# Global dir
+g_dir = '/mnt/Cromosoma/mavila/jmedina/Paleogenomic-Datasim/data_simulation'
+
 import os
 from multiprocessing import Pool
 
-anc_dir = './ancient/'
+anc_dir = g_dir + '/ancient/'
 
 # Make sure directory exists
 if not os.path.exists(anc_dir):
