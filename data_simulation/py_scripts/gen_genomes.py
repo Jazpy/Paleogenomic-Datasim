@@ -22,22 +22,33 @@ ancient_individuals = int(sys.argv[2])
 present_individuals = int(sys.argv[3]) + 1
 # Number of bases to simulate
 num_bases = int(sys.argv[4])
-# Time of mass migration / population split
+# Time of population split
 pop_split = int(sys.argv[5])
+# Time of bottleneck
+bottleneck_time = int(sys.argv[6])
 
 #####################################
 # Simulate chromosomes with msprime #
 #####################################
 
 # Simulate mass migration with the given split argument
-pop_configs = [
+if(pop_split > 0):
+    pop_configs = [
 	msprime.PopulationConfiguration(initial_size=1e4),
 	msprime.PopulationConfiguration(initial_size=1e4)
-]
+    ]
 
-dem_events = [
-	msprime.MassMigration(time=pop_split, source=0, destination=1, proportion=1.0)
-]
+    dem_events = [
+	msprime.MassMigration(time=pop_split, source=0, destination=1, proportion=0.5)
+    ]
+elif(bottleneck_time > 0):
+    pop_configs = [
+	msprime.PopulationConfiguration(initial_size=1e4),
+    ]
+
+    dem_events = [
+	msprime.PopulationParametersChange(time=bottleneck_time, initial_size=100, population_id=0)
+    ]
 
 # Create sample list
 samples = []
@@ -57,7 +68,7 @@ for _ in range(ancient_individuals):
 	samples.append(msprime.Sample(ancient_pop, gens))
 
 # Run simulation and extract results
-if(pop_split > 1):
+if(pop_split > 0 or bottleneck_time > 0):
 	tree_seq = msprime.simulate(
 		samples=samples, recombination_rate=2e-8,
         	mutation_rate=2e-8, length=num_bases,
