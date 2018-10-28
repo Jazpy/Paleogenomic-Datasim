@@ -39,7 +39,7 @@ if(pop_split > 0):
     ]
 
     dem_events = [
-	msprime.MassMigration(time=pop_split, source=0, destination=1, proportion=0.5)
+	msprime.MassMigration(time=pop_split, source=0, destination=1, proportion=1.0)
     ]
 elif(bottleneck_time > 0):
     pop_configs = [
