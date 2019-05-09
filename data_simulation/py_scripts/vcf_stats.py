@@ -1,11 +1,14 @@
+import sys
+
 # Global path
-ref_path = '/mnt/Cromosoma/mavila/jmedina/Paleogenomic-Datasim/data_simulation/reference/ref.fa'
+g_dir = sys.argv[1]
+ref_path = f'{g_dir}/reference/ref.fa'
 
 # Get vcf data
 with open('variants_biallelic.vcf') as vcf_f:
     vcf_l = vcf_f.readlines()
 
-vcf_l = [(x.split()[1], x.split()[3], x.split()[4], x.split()[9].split(':')[0], x.split()[9].split(':')[2]) for x in vcf_l if x[0] != '#']
+vcf_l = [(x.split()[1], x.split()[3], x.split()[4], x.split()[9].split(':')[0], x.split()[9].split(':')[2]) for x in vcf_l if x[0] != '#' and 'GT:PL:AD:GQ' in x]
 positions = [int(x[0]) for x in vcf_l]
 refs = [x[1] for x in vcf_l]
 alts = [x[2] for x in vcf_l]
@@ -36,7 +39,7 @@ for pos, ref in zip(positions, refs):
 out_lines = []
 false_positives = 0
 
-with open('chr.1.fa') as chr1_f, open('chr.2.fa') as chr2_f:
+with open('../../chr.1.fa') as chr1_f, open('../../chr.2.fa') as chr2_f:
     chr1_seq = chr1_f.readlines()[1]
     chr2_seq = chr2_f.readlines()[1]
 

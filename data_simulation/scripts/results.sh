@@ -1,11 +1,9 @@
 #!/bin/bash
 
-g_dir="/mnt/Cromosoma/mavila/jmedina/Paleogenomic-Datasim/data_simulation"
+g_dir=$1
 
 #$ -b y
 #$ -w e
-#$ -e /mnt/Cromosoma/mavila/jmedina/Paleogenomic-Datasim/data_simulation/logs/err/results
-#$ -o /mnt/Cromosoma/mavila/jmedina/Paleogenomic-Datasim/data_simulation/logs/std/results
 #$ -N results_ref  # job's name
 #$ -hold_jid phase_ref
 
@@ -20,9 +18,16 @@ g_dir="/mnt/Cromosoma/mavila/jmedina/Paleogenomic-Datasim/data_simulation"
 #$ -V
 
 # reserve all requested resources
+#$ -l vf=8G
 #$ -R y
 
 module load hdf5/1.8.19
 module load python36/3.6.3
 
-python3 /mnt/Cromosoma/mavila/jmedina/Paleogenomic-Datasim/data_simulation/py_scripts/get_results.py $1 $2 $3 $4
+python3 "$g_dir"/py_scripts/get_results.py $1 $2 $3 $4 $5
+
+mkdir "$g_dir"/"$2"gen/
+mv "$g_dir"/cases "$g_dir"/"$2"gen/
+mv "$g_dir"/reference "$g_dir"/"$2"gen/
+mv "$g_dir"/present "$g_dir"/"$2"gen/
+mv "$g_dir"/gargammel* "$g_dir"/"$2"gen/

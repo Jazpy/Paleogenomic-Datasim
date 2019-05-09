@@ -3,18 +3,17 @@
 # all ancient human individuals in the './ancient'  #
 # directory, gen_genomes.py should be run first     #
 #####################################################
-
-# Global dir
-g_dir = '/mnt/Cromosoma/mavila/jmedina/Paleogenomic-Datasim/data_simulation'
-
+import sys
 import os
 from multiprocessing import Pool
 
+# Global dir
+g_dir = sys.argv[1]
 anc_dir = g_dir + '/ancient/'
 
 # Make sure directory exists
 if not os.path.exists(anc_dir):
-    print('ancient sequence folder not present, '
+    print('segregating_sites.py: ancient sequence folder not present, '
             'try running gen_genomes.py first')
     quit()
 
@@ -25,7 +24,7 @@ files = [os.path.join(anc_dir, f) for f in os.listdir(anc_dir) if
 # Make sure it has the correct format, we need two chromosomes
 # per individual
 if len(files) % 2 != 0:
-    print('Odd number of ancient chromosomes')
+    print('segregating_sites.py: odd number of ancient chromosomes')
     quit()
 
 # Calculate total individuals

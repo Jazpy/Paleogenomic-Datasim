@@ -1,37 +1,94 @@
+######################################
+# Simulation configuration variables #
+######################################
+
 g_dir="/mnt/Cromosoma/mavila/jmedina/Paleogenomic-Datasim/data_simulation"
+size_freq_path="/mnt/Cromosoma/mavila/jmedina/Paleogenomic-Datasim/size_freq"
 
-rm "$g_dir"/logs/err/*
-rm "$g_dir"/logs/std/*
+# Age in generations of samples with simulated reads
+anc_age=$1
+# Amount of simulated ancient samples
+ancients=$2
+# Amount of present day sequences used to create reference panel
+references=$3
+# Length of sequences to simulate
+bases=$4
+# Branch scaling factor when passing from msprime to seq-gen
+branch_scale=$5
+# OPTIONAL Demographic event to simulate, currently supported: [split, bottleneck]
+event=$6
+# OPTIONAL Time in generations from present when event happened
+event_time=$7
 
-rm -rf "$g_dir"/data/
+# Reads will be simulated for all combinations of coverages and contaminations,
+# coverages=( "10" "5" "1" ) indicate 10X, 5X, and 1X coverage,
+# contaminations=( "0" "2" "5" ) indicate 0%, 2%, and 5% modern contamination
+coverages=( "10" "5" "1" )
+contaminations=( "0" "2" "5" "10" )
+
+# Set to false if you want to skip the SHAPEIT phasing step
+should_phase=true
+
+###############################
+# End configuration variables #
+###############################
+
+# event and event_time should be mutually inclusive
+if [ -z "$6" ] || [ -z "$7" ]
+then
+	event="null"
+	event_time="null"
+fi
+
+# Transform coverage and contamination into comma separated strings,
+# to simplify passing them as arguments into python scripts
+printf -v cov_string "%s," "${coverages[@]}"
+cov_string=${cov_string%?}
+printf -v con_string "%s," "${contaminations[@]}"
+con_string=${con_string%?}
+
+# Fresh directory structure
+rm -rf "$g_dir"/logs
+mkdir "$g_dir"/logs
+mkdir "$g_dir"/logs/err/
+mkdir "$g_dir"/logs/std/
 rm -rf "$g_dir"/present/
 rm -rf "$g_dir"/reference/
+rm -rf "$g_dir"/cases/
 
-touch "$g_dir"/logs/err/pre_gargammel
-touch "$g_dir"/logs/std/pre_gargammel
+# pre_gargammel.sh: simulated sequences and directory structure required for gargammel, reference panel creation
+qsub -o "$g_dir"/logs/std/pre_gargammel -e "$g_dir"/logs/err/pre_gargammel \
+	"$g_dir"/scripts/pre_gargammel.sh $g_dir $anc_age $ancients $references $bases $branch_scale \
+	$event $event_time $cov_string $con_string
 
-touch "$g_dir"/logs/err/gargammel
-touch "$g_dir"/logs/std/gargammel
+# gargammel.sh: simulated reads for all combinations of coverage and contamination
+qsub -t 1-$ancients -o "$g_dir"/logs/std/gargammel -e "$g_dir"/logs/err/gargammel \
+	"$g_dir"/scripts/gargammel.sh $g_dir $size_freq_path "${#coverages[@]}" "${coverages[@]}" \
+	"${#contaminations[@]}" "${contaminations[@]}"
 
-touch "$g_dir"/logs/err/pre_map
-touch "$g_dir"/logs/std/pre_map
+# pre_map.sh: indexing of reference sequence
+qsub -o "$g_dir"/logs/std/pre_map -e "$g_dir"/logs/err/pre_map \
+	"$g_dir"/scripts/pre_map.sh $g_dir
 
-touch "$g_dir"/logs/err/map
-touch "$g_dir"/logs/std/map
+# map.sh: mapping of all simulated samples to reference sequence
+qsub -t 1-$ancients -o "$g_dir"/logs/std/map -e "$g_dir"/logs/err/map \
+	"$g_dir"/scripts/map.sh $g_dir "${#coverages[@]}" "${coverages[@]}" \
+	"${#contaminations[@]}" "${contaminations[@]}"
 
-touch "$g_dir"/logs/err/call_variants
-touch "$g_dir"/logs/std/call_variants
+# call_variants.sh: creation and filtering of VCF files for all simulated samples
+qsub -t 1-$ancients -o "$g_dir"/logs/std/call_variants -e "$g_dir"/logs/err/call_variants \
+	"$g_dir"/scripts/call_variants.sh $g_dir "${#coverages[@]}" "${coverages[@]}" \
+	"${#contaminations[@]}" "${contaminations[@]}"
 
-touch "$g_dir"/logs/err/phase
-touch "$g_dir"/logs/std/phase
+if [ "$should_phase" = true ]
+then
 
-touch "$g_dir"/logs/err/results
-touch "$g_dir"/logs/std/results
+	# phase.sh: phasing of all samples using SHAPEIT, accuracy and switch error reports
+	qsub -t 1-$ancients -o "$g_dir"/logs/std/phase -e "$g_dir"/logs/err/phase \
+		"$g_dir"/scripts/phase.sh $g_dir "${#coverages[@]}" "${coverages[@]}" \
+		"${#contaminations[@]}" "${contaminations[@]}"
 
-qsub "$g_dir"/scripts/pre_gargammel.sh $1 $2 $3 $4 $5
-qsub "$g_dir"/scripts/gargammel.sh
-qsub "$g_dir"/scripts/pre_map.sh
-qsub "$g_dir"/scripts/map.sh
-qsub "$g_dir"/scripts/call_variants.sh
-qsub "$g_dir"/scripts/phase.sh
-qsub "$g_dir"/scripts/results.sh $1 $2 $3 $4
+	# results.sh: compilation of phasing results for all samples
+	qsub -o "$g_dir"/logs/std/results -e "$g_dir"/logs/err/results \
+		"$g_dir"/scripts/results.sh $g_dir $anc_age $ancients $references $bases
+fi

@@ -1,3 +1,4 @@
+import sys
 import subprocess
 import shutil
 import os
@@ -7,34 +8,30 @@ import os
 ########################
 
 # Global dir
-g_dir = '/mnt/Cromosoma/mavila/jmedina/Paleogenomic-Datasim/data_simulation'
-
+g_dir = sys.argv[1]
 # Number of cases, one for each ancient individual
 num_cases = int(len(os.listdir(g_dir + '/ancient/')) / 3)
-
 # Coverage parameters
-coverages = [1, 5, 10]
-
+coverages = sys.argv[2].split(',')
 # Contamination parameters
-contaminations = [0, 2, 5, 10]
+contaminations = sys.argv[3].split(',')
 
 #######################
 # Directory structure #
 #######################
 
 # Directory constants
-garg_dir = g_dir + '/gargammel/cases/'
-main_dir = g_dir + '/cases/'
+garg_dir = f'{g_dir}/gargammel/cases/'
+main_dir = f'{g_dir}/cases/'
 
 # Create clean directories, one for each case
 if os.path.exists(main_dir):
     shutil.rmtree(main_dir)
 if os.path.exists(garg_dir):
-    shutil.rmtree(garg_dir)
-    shutil.rmtree(g_dir + '/gargammel/')
+    shutil.rmtree(f'{g_dir}/gargammel/')
 
 os.makedirs(main_dir)
-os.makedirs(g_dir + '/gargammel/')
+os.makedirs(f'{g_dir}/gargammel/')
 os.makedirs(garg_dir)
 
 for i in range(num_cases):
@@ -55,12 +52,12 @@ for i in range(num_cases):
 
     # Directories for different coverage parameters
     for c in coverages:
-        cov_dir = dir_string + str(c) + 'x/'
+        cov_dir = dir_string + c + 'x/'
         os.makedirs(cov_dir)
 
         # Directories for different contamination parameters
         for x in contaminations:
-            os.makedirs(cov_dir + str(x) + 'percent/')
+            os.makedirs(cov_dir + x + 'percent/')
 
 #################
 # Data movement #

@@ -6,8 +6,8 @@
 import os
 
 # Working dir
-data_dir = os.getcwd()
-phase_dir = data_dir + '/phased'
+data_dir = os.path.abspath(os.path.join(os.getcwd(), '../../'))
+phase_dir = os.path.abspath(os.path.join(os.getcwd(), 'phased/'))
 
 # Make sure directory exists
 if not os.path.exists(phase_dir):
@@ -20,6 +20,8 @@ files = [os.path.join(data_dir, f) for f in os.listdir(data_dir) if
 
 # Make sure it has the correct format, we need two chromosomes
 # per individual
+print(data_dir)
+print(phase_dir)
 if data_dir + '/chr.1.fa' not in files or data_dir + '/chr.2.fa' not in files:
     print('Simulated chromosome files not present')
     quit()
@@ -83,25 +85,31 @@ for hap in haps:
         continue
 
     # Compare to SHAPEIT results
-    hit = expected1 == hap1_res and expected2 == hap2_res
-    hit_alt = expected1 == hap2_res and expected2 == hap1_res
+    hit1 = expected1 == hap1_res
+    hit2 = expected2 == hap2_res
+    hit1_alt = expected1 == hap2_res
+    hit2_alt = expected2 == hap1_res
 
-    if hit:
+    if hit1:
         hits += 1
-    if hit_alt:
+    if hit2:
+        hits += 1
+    if hit1_alt:
+        alt_hits += 1
+    if hit2_alt:
         alt_hits += 1
 
-    out.append('SHAPEIT: %d, %s, %s, %d, %d | EXP: %d, %d | %s\n' % (site, allele1, allele2, hap1_res, hap2_res, expected1, expected2, hit))
-    out_alt.append('SHAPEIT: %d, %s, %s, %d, %d | EXP: %d, %d | %s\n' % (site, allele1, allele2, hap1_res, hap2_res, expected2, expected1, hit_alt))
+    out.append('SHAPEIT: %d, %s, %s, %d, %d | EXP: %d, %d | %s, %s\n' % (site, allele1, allele2, hap1_res, hap2_res, expected1, expected2, hit1, hit2))
+    out_alt.append('SHAPEIT: %d, %s, %s, %d, %d | EXP: %d, %d | %s, %s\n' % (site, allele1, allele2, hap1_res, hap2_res, expected2, expected1, hit1_alt, hit2_alt))
 
 out_success = 0
 out_alt_success = 0
 if len(out) != 0:
-    out_success = float(hits) * 100.0 / float(len(out))
+    out_success = float(hits) * 100.0 / float(len(out) * 2)
 if len(out_alt) != 0:
-    out_alt_success = float(alt_hits) * 100.0 / float(len(out_alt))
+    out_alt_success = float(alt_hits) * 100.0 / float(len(out_alt) * 2)
 
-with open(data_dir + '/phasing_results.txt', 'w') as out_f:
+with open(os.getcwd() + '/phasing_results.txt', 'w') as out_f:
     if out_success > out_alt_success:
         out_f.writelines(out)
         out_f.write('SUCCESS RATE: {} PERCENT\n'.format(out_success))

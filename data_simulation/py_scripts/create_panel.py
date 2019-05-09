@@ -1,4 +1,5 @@
 import os
+import sys
 import random
 
 ######################################################
@@ -7,9 +8,10 @@ import random
 ######################################################
 
 # Global dir
-g_dir = '/mnt/Cromosoma/mavila/jmedina/Paleogenomic-Datasim/data_simulation'
-out_dir = g_dir + '/reference/'
-pre_dir = g_dir + '/present/'
+g_dir = sys.argv[1]
+out_dir = f'{g_dir}/reference/'
+pre_dir = f'{g_dir}/present/'
+segsite_filepath = f'{g_dir}/all_segsites'
 
 # Lists where file output will be stored, included headers
 sam_f = ['sample population group sex']
@@ -18,8 +20,12 @@ hap_f = []
 
 # Make sure directory exists
 if not os.path.exists(pre_dir):
-    print('present sequence folder not present, '
+    print('create_panel.py: present sequence folder not present, '
             'try running gen_genomes.py first')
+    quit()
+
+if not os.path.isfile(segsite_filepath):
+    print('create_panel.py: segsite file missing')
     quit()
 
 # Get file list
@@ -27,9 +33,9 @@ files = [os.path.join(pre_dir, f) for f in os.listdir(pre_dir) if
         os.path.isfile(os.path.join(pre_dir, f))]
 
 # Make sure it has the correct format, we need two chromosomes
-# per individual
+# per individual, plus segsites
 if len(files) % 2 != 0:
-    print('Odd number of present chromosomes')
+    print('create_panel.py: odd number of present chromosomes')
     quit()
 
 # Calculate total individuals
@@ -44,7 +50,7 @@ for i in range(individuals):
     sam_f.append('IND' + str(i + 1) + ' FOO BAR ' + random.choice(['1', '2']))
 
     # Individual string
-    ind_string = 'individual.' + str(i + 1)
+    ind_string = 'present.' + str(i + 1)
 
     # Build both filepaths
     chr_path_1 = pre_dir + ind_string + '.1.fa'
@@ -56,10 +62,18 @@ for i in range(individuals):
         haplotypes.append(chr1.readlines()[1])
         haplotypes.append(chr2.readlines()[1])
 
+# Get previously computed list with all segsites
+all_segsites = []
+with open(segsite_filepath, 'r') as segsite_file:
+    for line in segsite_file:
+        all_segsites.append(int(line))
+
+# Cleanup
+os.remove(segsite_filepath)
+
 # List with SNPs (index, [alleles])
 snps = []
-
-for site in range(len(haplotypes[0])):
+for site in all_segsites:
     ref_site = haplotypes[0][site]
 
     if ref_site == '\n':
@@ -69,15 +83,13 @@ for site in range(len(haplotypes[0])):
     snp = (site, alleles)
 
     for hap in haplotypes:
-        #if hap[site] != ref_site and not hap[site] in alleles:
         if not hap[site] in alleles:
             alleles.append(hap[site])
 
-    # TO REMOVE
-    if len(snp[1]) == 1:
-        alleles.append(ref_site)
-
     # Ignore triallelic+ sites
+    if len(snp[1]) == 1:
+        snp[1].append(ref_site)
+
     if len(snp[1]) == 2:
         snps.append(snp)
 
@@ -107,13 +119,10 @@ for (snp_index, snp) in zip(range(1, len(snps) + 1), snps):
     hap_f.append(hap_line[:-1])
 
 # Write to files
-with open(out_dir + 'ref_panel.sam', 'w') as out_sam, open(out_dir + 'ref_panel.leg', 'w') as out_leg, open(out_dir + 'ref_panel.hap', 'w') as out_hap:
-
+with open(f'{out_dir}ref_panel.sam', 'w') as sam, open(f'{out_dir}ref_panel.leg', 'w') as leg, open(f'{out_dir}ref_panel.hap', 'w') as hap:
     for line in sam_f:
-        out_sam.write(line + '\n')
-
+        sam.write(line + '\n')
     for line in leg_f:
-        out_leg.write(line + '\n')
-
+        leg.write(line + '\n')
     for line in hap_f:
-        out_hap.write(line + '\n')
+        hap.write(line + '\n')

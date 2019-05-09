@@ -2,18 +2,17 @@
 # This script will merge two chromosomes to use as  #
 # a mapping reference                               #
 #####################################################
-
-# Global dir
-g_dir = '/mnt/Cromosoma/mavila/jmedina/Paleogenomic-Datasim/data_simulation'
-
+import sys
 import os
 import random
 
-pre_dir = g_dir + '/present/'
+# Global dir
+g_dir = sys.argv[1]
+pre_dir = f'{g_dir}/present/'
 
 # Make sure directory exists
 if not os.path.exists(pre_dir):
-    print('present sequence folder not present, '
+    print('merge_reference.py: present sequence folder not present, '
             'try running gen_genomes.py first')
     quit()
 
@@ -24,14 +23,14 @@ files = [os.path.join(pre_dir, f) for f in os.listdir(pre_dir) if
 # Make sure it has the correct format, we need two chromosomes
 # per individual
 if len(files) % 2 != 0 or len(files) < 2:
-    print('Odd number of present chromosomes or not enough chromosomes')
+    print('merge_reference.py: odd number of present chromosomes or not enough chromosomes')
     quit()
 
 # Calculate total individuals
 individuals = int(len(files) / 2)
 
 # Individual string
-ind_string = 'individual.' + str(individuals)
+ind_string = 'present.' + str(individuals)
 
 # Build both filepaths
 chr_path_1 = pre_dir + ind_string + '.1.fa'

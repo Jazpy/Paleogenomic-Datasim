@@ -1,13 +1,11 @@
 #!/bin/bash
 
 # Declare bash variables
-g_dir="/mnt/Cromosoma/mavila/jmedina/Paleogenomic-Datasim/data_simulation"
-ref="/mnt/Cromosoma/mavila/jmedina/Paleogenomic-Datasim/data_simulation/reference/ref.fa"
+g_dir=$1
+ref=$1"/reference/ref.fa"
 
 #$ -b y
 #$ -w e
-#$ -e /mnt/Cromosoma/mavila/jmedina/Paleogenomic-Datasim/data_simulation/logs/err/pre_map
-#$ -o /mnt/Cromosoma/mavila/jmedina/Paleogenomic-Datasim/data_simulation/logs/std/pre_map
 #$ -N pre_map_ref  # job's name
 #$ -hold_jid gargammel_ref
 
@@ -22,6 +20,7 @@ ref="/mnt/Cromosoma/mavila/jmedina/Paleogenomic-Datasim/data_simulation/referenc
 #$ -V
 
 # reserve all requested resources
+#$ -l vf=8G
 #$ -R y
 
 # Cleanup

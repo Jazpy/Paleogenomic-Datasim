@@ -1,8 +1,11 @@
+import sys
+
 # Global path
-ref_path = '/mnt/Cromosoma/mavila/jmedina/Paleogenomic-Datasim/data_simulation/reference/ref.fa'
+g_dir = sys.argv[1]
+ref_path = f'{g_dir}/reference/ref.fa'
 
 # Read sequence data
-with open('chr.1.fa', 'r') as chr1_f, open('chr.2.fa', 'r') as chr2_f, open(ref_path, 'r') as ref_f:
+with open('../../chr.1.fa', 'r') as chr1_f, open('../../chr.2.fa', 'r') as chr2_f, open(ref_path, 'r') as ref_f:
     chr1_seq = chr1_f.readlines()[1]
     chr2_seq = chr2_f.readlines()[1]
     ref_seq = ref_f.readlines()[1]
