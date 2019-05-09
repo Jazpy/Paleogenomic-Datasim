@@ -2,8 +2,9 @@
 # Simulation configuration variables #
 ######################################
 
-g_dir="/mnt/Cromosoma/mavila/jmedina/Paleogenomic-Datasim/data_simulation"
-size_freq_path="/mnt/Cromosoma/mavila/jmedina/Paleogenomic-Datasim/size_freq"
+# CHANGE TO WHEREVER YOU'RE RUNNING THIS
+g_dir="~/Paleogenomic-Datasim/data_simulation"
+size_freq_path="~/Paleogenomic-Datasim/size_freq"
 
 # Age in generations of samples with simulated reads
 anc_age=$1
