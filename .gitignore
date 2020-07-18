@@ -1,8 +1,14 @@
 # Folders
-data_simulation/ancient
-data_simulation/present
-data_simulation/contaminant
-data_simulation/cases
+genomic_datasim/ancient
+genomic_datasim/present
+genomic_datasim/contaminant
+genomic_datasim/cases
+genomic_datasim/logs/err/*
+genomic_datasim/logs/std/*
+!genomic_datasim/logs/err/.gitkeep
+!genomic_datasim/logs/std/.gitkeep
+pca_analysis/logs/*
+!pca_analysis/logs/.gitkeep
 
 # Sequence files
 *.fa
